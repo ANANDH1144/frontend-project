@@ -3,228 +3,667 @@
    ===================================================== */
 
 
-/* -----------------------------------------------------
-   1. FAQ ACCORDION
------------------------------------------------------ */
+/* =====================================================
+   DOM READY
+   ===================================================== */
 
-const faqQuestions = document.querySelectorAll(".faq-question");
+   document.addEventListener("DOMContentLoaded", () => {
 
-faqQuestions.forEach((question) => {
 
-    question.addEventListener("click", () => {
+    /* =================================================
+       FAQ ACCORDION
+       ================================================= */
 
-        const currentItem = question.parentElement;
+    const faqQuestions =
+        document.querySelectorAll(".faq-question");
 
-        document.querySelectorAll(".faq-item").forEach((item) => {
+    faqQuestions.forEach((question) => {
 
-            if (item !== currentItem) {
-                item.classList.remove("open");
+        question.addEventListener("click", () => {
+
+            const item =
+                question.closest(".faq-item");
+
+            if (!item) return;
+
+            const isOpen =
+                item.classList.contains("open");
+
+            /* Close all FAQ items */
+            document
+                .querySelectorAll(".faq-item.open")
+                .forEach((openItem) => {
+
+                    openItem.classList.remove("open");
+
+                });
+
+            /* Open clicked item */
+            if (!isOpen) {
+                item.classList.add("open");
             }
 
         });
-
-        currentItem.classList.toggle("open");
 
     });
 
-});
 
+    /* =================================================
+       SCROLL REVEAL
+       ================================================= */
 
-/* -----------------------------------------------------
-   2. SCROLL REVEAL ANIMATION
------------------------------------------------------ */
+    const revealElements =
+        document.querySelectorAll(
+            ".section-heading, " +
+            ".feature, " +
+            ".tech-card, " +
+            ".career-step, " +
+            ".highlight, " +
+            ".outcomes-content, " +
+            ".outcome-visual"
+        );
 
-const revealElements = document.querySelectorAll(
-    ".section-heading, .feature, .tech-card, .career-step, .highlight, .outcomes-content, .outcome-visual"
-);
+    const revealObserver =
+        new IntersectionObserver(
+            (entries, observer) => {
 
-const revealObserver = new IntersectionObserver(
+                entries.forEach((entry) => {
 
-    (entries) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
 
-        entries.forEach((entry) => {
+                    entry.target.classList.add("reveal");
 
-            if (entry.isIntersecting) {
+                    observer.unobserve(
+                        entry.target
+                    );
 
-                entry.target.classList.add("reveal");
+                });
 
-                revealObserver.unobserve(entry.target);
-
+            },
+            {
+                threshold: 0.12,
+                rootMargin: "0px 0px -50px 0px"
             }
+        );
+
+    revealElements.forEach((element) => {
+
+        revealObserver.observe(element);
+
+    });
+
+
+    /* =================================================
+       TECHNOLOGY CARD CLICK
+       ================================================= */
+
+    const techCards =
+        document.querySelectorAll(".tech-card");
+
+    techCards.forEach((card) => {
+
+        card.addEventListener("click", () => {
+
+            techCards.forEach((item) => {
+
+                item.classList.remove("active");
+
+            });
+
+            card.classList.add("active");
 
         });
 
-    },
+    });
 
-    {
-        threshold: 0.12
+
+    /* =================================================
+       ENQUIRY / MESSAGE
+       ================================================= */
+
+    window.showMessage = function () {
+
+        alert(
+            "Thank you for your interest in G-TEC Full Stack Web Development!"
+        );
+
+    };
+
+
+    /* =================================================
+       NAVBAR BACKGROUND ON SCROLL
+       ================================================= */
+
+    const navbar =
+        document.querySelector(".navbar");
+
+    function updateNavbar() {
+
+        if (!navbar) return;
+
+        if (window.scrollY > 40) {
+
+            navbar.style.background =
+                "rgba(7, 17, 31, 0.94)";
+
+            navbar.style.boxShadow =
+                "0 10px 35px rgba(0, 0, 0, 0.18)";
+
+        } else {
+
+            navbar.style.background =
+                "rgba(7, 17, 31, 0.78)";
+
+            navbar.style.boxShadow =
+                "none";
+
+        }
+
     }
 
-);
-
-
-revealElements.forEach((element) => {
-
-    revealObserver.observe(element);
-
-});
-
-
-/* -----------------------------------------------------
-   3. TECHNOLOGY CARD INTERACTION
------------------------------------------------------ */
-
-const techCards = document.querySelectorAll(".tech-card");
-
-techCards.forEach((card) => {
-
-    card.addEventListener("click", () => {
-
-        techCards.forEach((item) => {
-            item.classList.remove("active");
-        });
-
-        card.classList.add("active");
-
-    });
-
-});
-
-
-/* -----------------------------------------------------
-   4. ENQUIRE BUTTON
------------------------------------------------------ */
-
-function showMessage() {
-
-    alert(
-        "Thank you for your interest in the Full Stack Web Development program!\n\n" +
-        "Please contact G-TEC Education for course counselling and admission details."
+    window.addEventListener(
+        "scroll",
+        updateNavbar,
+        { passive: true }
     );
 
-}
+    updateNavbar();
 
 
-/* -----------------------------------------------------
-   5. NAVBAR BACKGROUND ON SCROLL
------------------------------------------------------ */
+    /* =================================================
+       ACTIVE NAVIGATION LINK
+       ================================================= */
 
-const navbar = document.querySelector(".navbar");
+    const navLinks =
+        document.querySelectorAll(
+            ".navbar nav a"
+        );
 
-window.addEventListener("scroll", () => {
+    const sections =
+        document.querySelectorAll(
+            "section[id]"
+        );
 
-    if (window.scrollY > 50) {
+    function updateActiveNav() {
 
-        navbar.style.background = "rgba(5, 13, 24, 0.94)";
+        let currentSection = "";
 
-    } else {
+        sections.forEach((section) => {
 
-        navbar.style.background = "rgba(7, 17, 31, 0.78)";
+            const sectionTop =
+                section.offsetTop - 160;
+
+            const sectionHeight =
+                section.offsetHeight;
+
+            if (
+                window.scrollY >= sectionTop &&
+                window.scrollY <
+                sectionTop + sectionHeight
+            ) {
+
+                currentSection =
+                    section.getAttribute("id");
+
+            }
+
+        });
+
+        navLinks.forEach((link) => {
+
+            const href =
+                link.getAttribute("href");
+
+            link.classList.remove("active");
+
+            if (
+                href ===
+                `#${currentSection}`
+            ) {
+
+                link.classList.add("active");
+
+            }
+
+        });
 
     }
 
-});
+    window.addEventListener(
+        "scroll",
+        updateActiveNav,
+        { passive: true }
+    );
+
+    updateActiveNav();
 
 
-/* -----------------------------------------------------
-   6. ACTIVE NAVIGATION LINK
------------------------------------------------------ */
+    /* =================================================
+       TECH CARD CURSOR / RADIAL EFFECT
+       ================================================= */
 
-const sections = document.querySelectorAll("section[id]");
-const navLinks = document.querySelectorAll(".navbar nav a");
+    techCards.forEach((card) => {
 
-window.addEventListener("scroll", () => {
+        card.addEventListener(
+            "mousemove",
+            (event) => {
 
-    let currentSection = "";
+                const rect =
+                    card.getBoundingClientRect();
 
-    sections.forEach((section) => {
+                const x =
+                    event.clientX - rect.left;
 
-        const sectionTop = section.offsetTop - 150;
-        const sectionHeight = section.offsetHeight;
+                const y =
+                    event.clientY - rect.top;
+
+                card.style.background =
+                    `
+                    radial-gradient(
+                        circle at ${x}px ${y}px,
+                        rgba(47, 128, 255, 0.16),
+                        rgba(255, 255, 255, 0.035) 45%
+                    )
+                    `;
+
+            }
+        );
+
+        card.addEventListener(
+            "mouseleave",
+            () => {
+
+                card.style.background =
+                    "";
+
+            }
+        );
+
+    });
+
+
+    /* =================================================
+       TERMINAL CURSOR
+       ================================================= */
+
+    const terminalCursor =
+        document.querySelector(".cursor");
+
+    if (terminalCursor) {
+
+        setInterval(() => {
+
+            terminalCursor.style.opacity =
+                terminalCursor.style.opacity === "0"
+                    ? "1"
+                    : "0";
+
+        }, 600);
+
+    }
+
+
+    /* =================================================
+       PAGE LOADED
+       ================================================= */
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            document.body.classList.add(
+                "loaded"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       G-TEC CINEMATIC SCROLL EXPERIENCE
+       ================================================= */
+
+    const cinematicSection =
+        document.querySelector(
+            ".cinematic-story"
+        );
+
+    if (!cinematicSection) {
+        return;
+    }
+
+
+    const cinematicSlides =
+        Array.from(
+            cinematicSection.querySelectorAll(
+                ".cinematic-slide"
+            )
+        );
+
+
+    const cinematicProgressBar =
+        cinematicSection.querySelector(
+            ".cinematic-progress-line span"
+        );
+
+
+    const cinematicCurrentNumber =
+        cinematicSection.querySelector(
+            ".cinematic-current"
+        );
+
+
+    if (!cinematicSlides.length) {
+        return;
+    }
+
+
+    let currentSlide = 0;
+
+    let cinematicTicking = false;
+
+
+    /* -----------------------------------------------
+       INITIAL SLIDE
+       ----------------------------------------------- */
+
+    cinematicSlides.forEach(
+        (slide, index) => {
+
+            slide.classList.toggle(
+                "active",
+                index === 0
+            );
+
+        }
+    );
+
+
+    /* -----------------------------------------------
+       CINEMATIC UPDATE
+       ----------------------------------------------- */
+
+    function updateCinematic() {
+
+        const rect =
+            cinematicSection.getBoundingClientRect();
+
+
+        const sectionHeight =
+            cinematicSection.offsetHeight;
+
+
+        const viewportHeight =
+            window.innerHeight;
+
+
+        const scrollable =
+            sectionHeight -
+            viewportHeight;
+
+
+        if (scrollable <= 0) {
+            return;
+        }
+
+
+        /* -------------------------------------------
+           Overall progress
+           ------------------------------------------- */
+
+        let progress =
+            -rect.top / scrollable;
+
+
+        progress =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    progress
+                )
+            );
+
+
+        /* -------------------------------------------
+           Determine active slide
+           ------------------------------------------- */
+
+        const slideCount =
+            cinematicSlides.length;
+
+
+        let slideIndex =
+            Math.floor(
+                progress * slideCount
+            );
+
 
         if (
-            window.scrollY >= sectionTop &&
-            window.scrollY < sectionTop + sectionHeight
+            slideIndex >= slideCount
         ) {
 
-            currentSection = section.getAttribute("id");
+            slideIndex =
+                slideCount - 1;
 
         }
 
-    });
 
+        /* -------------------------------------------
+           Activate slide
+           ------------------------------------------- */
 
-    navLinks.forEach((link) => {
+        if (
+            slideIndex !==
+            currentSlide
+        ) {
 
-        link.style.color = "";
+            cinematicSlides.forEach(
+                (slide, index) => {
 
-        if (link.getAttribute("href") === "#" + currentSection) {
+                    slide.classList.toggle(
+                        "active",
+                        index === slideIndex
+                    );
 
-            link.style.color = "#55a5ff";
+                }
+            );
+
+            currentSlide =
+                slideIndex;
 
         }
 
-    });
 
-});
+        /* -------------------------------------------
+           Local slide progress
+           ------------------------------------------- */
 
-
-/* -----------------------------------------------------
-   7. CURSOR EFFECT FOR TECHNOLOGY CARDS
------------------------------------------------------ */
-
-techCards.forEach((card) => {
-
-    card.addEventListener("mousemove", (event) => {
-
-        const rect = card.getBoundingClientRect();
-
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        card.style.background =
-            `radial-gradient(
-                circle at ${x}px ${y}px,
-                rgba(47, 128, 255, 0.18),
-                rgba(255, 255, 255, 0.035) 45%
-            )`;
-
-    });
+        const slideStart =
+            slideIndex /
+            slideCount;
 
 
-    card.addEventListener("mouseleave", () => {
-
-        card.style.background = "";
-
-    });
-
-});
+        const slideEnd =
+            (slideIndex + 1) /
+            slideCount;
 
 
-/* -----------------------------------------------------
-   8. HERO CODE TYPING EFFECT
------------------------------------------------------ */
-
-const terminalCursor = document.querySelector(".cursor");
-
-if (terminalCursor) {
-
-    setInterval(() => {
-
-        terminalCursor.style.opacity =
-            terminalCursor.style.opacity === "0" ? "1" : "0";
-
-    }, 500);
-
-}
+        let localProgress =
+            (
+                progress -
+                slideStart
+            ) /
+            (
+                slideEnd -
+                slideStart
+            );
 
 
-/* -----------------------------------------------------
-   9. PAGE LOADED
------------------------------------------------------ */
+        localProgress =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    localProgress
+                )
+            );
 
-window.addEventListener("load", () => {
 
-    document.body.classList.add("loaded");
+        /* -------------------------------------------
+           IMAGE ZOOM + PARALLAX
+           ------------------------------------------- */
+
+        cinematicSlides.forEach(
+            (slide, index) => {
+
+                const image =
+                    slide.querySelector("img");
+
+                if (!image) {
+                    return;
+                }
+
+
+                if (
+                    index === slideIndex
+                ) {
+
+                    /*
+                     * Very small zoom.
+                     * This gives the image
+                     * a cinematic camera feel.
+                     */
+
+                    const scale =
+                        1 +
+                        localProgress * 0.055;
+
+
+                    const x =
+                        localProgress * -16;
+
+
+                    const y =
+                        localProgress * -6;
+
+
+                    image.style.transform =
+                        `
+                        translate3d(
+                            ${x}px,
+                            ${y}px,
+                            0
+                        )
+                        scale(${scale})
+                        `;
+
+                } else {
+
+                    image.style.transform =
+                        `
+                        translate3d(
+                            0,
+                            0,
+                            0
+                        )
+                        scale(1)
+                        `;
+
+                }
+
+            }
+        );
+
+
+        /* -------------------------------------------
+           PROGRESS BAR
+           ------------------------------------------- */
+
+        if (cinematicProgressBar) {
+
+            cinematicProgressBar.style.width =
+                `${progress * 100}%`;
+
+        }
+
+
+        /* -------------------------------------------
+           SLIDE NUMBER
+           ------------------------------------------- */
+
+        if (cinematicCurrentNumber) {
+
+            cinematicCurrentNumber.textContent =
+                String(
+                    slideIndex + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+        }
+
+    }
+
+
+    /* =================================================
+       REQUEST ANIMATION FRAME
+       ================================================= */
+
+    function requestCinematicUpdate() {
+
+        if (cinematicTicking) {
+            return;
+        }
+
+        cinematicTicking = true;
+
+
+        requestAnimationFrame(
+            () => {
+
+                updateCinematic();
+
+                cinematicTicking =
+                    false;
+
+            }
+        );
+
+    }
+
+
+    /* =================================================
+       CINEMATIC SCROLL EVENT
+       ================================================= */
+
+    window.addEventListener(
+        "scroll",
+        requestCinematicUpdate,
+        {
+            passive: true
+        }
+    );
+
+
+    /* =================================================
+       CINEMATIC RESIZE EVENT
+       ================================================= */
+
+    window.addEventListener(
+        "resize",
+        requestCinematicUpdate
+    );
+
+
+    /* =================================================
+       INITIAL CINEMATIC UPDATE
+       ================================================= */
+
+    updateCinematic();
+
 
 });
