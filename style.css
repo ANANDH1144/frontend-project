@@ -945,7 +945,7 @@
        text-align: left;
    }
    
-   .faq-question span {
+   .faq-question span:last-child {
        color: var(--blue-light);
        font-size: 23px;
        transition: 0.3s ease;
@@ -969,9 +969,10 @@
        max-height: 200px;
    }
    
-   .faq-item.open .faq-question span {
-       transform: rotate(45deg);
-   }
+   .faq-item.open .faq-question span:last-child {
+    transform: rotate(45deg);
+}
+   
    
    
    /* =====================================================
