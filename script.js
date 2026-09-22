@@ -1,669 +1,370 @@
-/* =====================================================
-   G-TEC FSWD — INTERACTIVE JAVASCRIPT
-   ===================================================== */
-
-
-/* =====================================================
-   DOM READY
-   ===================================================== */
+/* ============================================
+   G-TEC CINEMATIC EXPERIENCE
+   ============================================ */
 
    document.addEventListener("DOMContentLoaded", () => {
 
+    const loader = document.querySelector(".loader");
 
-    /* =================================================
-       FAQ ACCORDION
-       ================================================= */
-
-    const faqQuestions =
-        document.querySelectorAll(".faq-question");
-
-    faqQuestions.forEach((question) => {
-
-        question.addEventListener("click", () => {
-
-            const item =
-                question.closest(".faq-item");
-
-            if (!item) return;
-
-            const isOpen =
-                item.classList.contains("open");
-
-            /* Close all FAQ items */
-            document
-                .querySelectorAll(".faq-item.open")
-                .forEach((openItem) => {
-
-                    openItem.classList.remove("open");
-
-                });
-
-            /* Open clicked item */
-            if (!isOpen) {
-                item.classList.add("open");
-            }
-
-        });
-
-    });
+    setTimeout(() => {
+        loader.classList.add("hide");
+    }, 1200);
 
 
-    /* =================================================
-       SCROLL REVEAL
-       ================================================= */
+    /* ============================================
+       SCENES
+       ============================================ */
 
-    const revealElements =
-        document.querySelectorAll(
-            ".section-heading, " +
-            ".feature, " +
-            ".tech-card, " +
-            ".career-step, " +
-            ".highlight, " +
-            ".outcomes-content, " +
-            ".outcome-visual"
-        );
+    const scenes = document.querySelectorAll(".scene");
+    const dots = document.querySelectorAll(".scene-dot");
+    const currentScene = document.getElementById("currentScene");
 
-    const revealObserver =
-        new IntersectionObserver(
-            (entries, observer) => {
-
-                entries.forEach((entry) => {
-
-                    if (!entry.isIntersecting) {
-                        return;
-                    }
-
-                    entry.target.classList.add("reveal");
-
-                    observer.unobserve(
-                        entry.target
-                    );
-
-                });
-
-            },
-            {
-                threshold: 0.12,
-                rootMargin: "0px 0px -50px 0px"
-            }
-        );
-
-    revealElements.forEach((element) => {
-
-        revealObserver.observe(element);
-
-    });
+    let current = 0;
+    let isChanging = false;
 
 
-    /* =================================================
-       TECHNOLOGY CARD CLICK
-       ================================================= */
+    function goToScene(index) {
 
-    const techCards =
-        document.querySelectorAll(".tech-card");
+        if (index < 0) {
+            index = scenes.length - 1;
+        }
 
-    techCards.forEach((card) => {
+        if (index >= scenes.length) {
+            index = 0;
+        }
 
-        card.addEventListener("click", () => {
+        if (index === current || isChanging) {
+            return;
+        }
 
-            techCards.forEach((item) => {
+        isChanging = true;
 
-                item.classList.remove("active");
+        scenes[current].classList.remove("active");
+        dots[current].classList.remove("active");
 
-            });
+        current = index;
 
-            card.classList.add("active");
+        scenes[current].classList.add("active");
+        dots[current].classList.add("active");
+
+        currentScene.textContent =
+            String(current + 1).padStart(2, "0");
+
+        setTimeout(() => {
+            isChanging = false;
+        }, 1100);
+    }
+
+
+    /* ============================================
+       NAVIGATION DOTS
+       ============================================ */
+
+    dots.forEach((dot) => {
+
+        dot.addEventListener("click", () => {
+
+            const sceneIndex =
+                parseInt(dot.dataset.scene);
+
+            goToScene(sceneIndex);
 
         });
 
     });
 
 
-    /* =================================================
-       ENQUIRY / MESSAGE
-       ================================================= */
+    /* ============================================
+       MOUSE WHEEL
+       ============================================ */
 
-    window.showMessage = function () {
+    let wheelLocked = false;
 
-        alert(
-            "Thank you for your interest in G-TEC Full Stack Web Development!"
-        );
+    window.addEventListener(
+        "wheel",
+        (event) => {
 
-    };
+            if (wheelLocked) {
+                return;
+            }
+
+            wheelLocked = true;
+
+            if (event.deltaY > 0) {
+                goToScene(current + 1);
+            } else {
+                goToScene(current - 1);
+            }
+
+            setTimeout(() => {
+                wheelLocked = false;
+            }, 1200);
+
+        },
+        { passive: true }
+    );
 
 
-    /* =================================================
-       NAVBAR BACKGROUND ON SCROLL
-       ================================================= */
+    /* ============================================
+       KEYBOARD
+       ============================================ */
 
-    const navbar =
-        document.querySelector(".navbar");
+    document.addEventListener("keydown", (event) => {
 
-    function updateNavbar() {
+        if (event.key === "ArrowDown" ||
+            event.key === "PageDown") {
 
-        if (!navbar) return;
+            goToScene(current + 1);
 
-        if (window.scrollY > 40) {
+        }
 
-            navbar.style.background =
-                "rgba(7, 17, 31, 0.94)";
+        if (event.key === "ArrowUp" ||
+            event.key === "PageUp") {
 
-            navbar.style.boxShadow =
-                "0 10px 35px rgba(0, 0, 0, 0.18)";
+            goToScene(current - 1);
 
+        }
+
+        if (event.key === "Home") {
+
+            goToScene(0);
+
+        }
+
+        if (event.key === "End") {
+
+            goToScene(scenes.length - 1);
+
+        }
+
+    });
+
+
+    /* ============================================
+       TOUCH SWIPE
+       ============================================ */
+
+    let touchStartY = 0;
+
+    window.addEventListener("touchstart", (event) => {
+
+        touchStartY = event.touches[0].clientY;
+
+    }, { passive: true });
+
+
+    window.addEventListener("touchend", (event) => {
+
+        const touchEndY =
+            event.changedTouches[0].clientY;
+
+        const difference =
+            touchStartY - touchEndY;
+
+        if (Math.abs(difference) < 50) {
+            return;
+        }
+
+        if (difference > 0) {
+            goToScene(current + 1);
         } else {
-
-            navbar.style.background =
-                "rgba(7, 17, 31, 0.78)";
-
-            navbar.style.boxShadow =
-                "none";
-
+            goToScene(current - 1);
         }
 
-    }
-
-    window.addEventListener(
-        "scroll",
-        updateNavbar,
-        { passive: true }
-    );
-
-    updateNavbar();
+    }, { passive: true });
 
 
-    /* =================================================
-       ACTIVE NAVIGATION LINK
-       ================================================= */
+    /* ============================================
+       MOUSE PARALLAX
+       ============================================ */
 
-    const navLinks =
-        document.querySelectorAll(
-            ".navbar nav a"
-        );
+    const experience =
+        document.querySelector(".experience");
 
-    const sections =
-        document.querySelectorAll(
-            "section[id]"
-        );
+    window.addEventListener("mousemove", (event) => {
 
-    function updateActiveNav() {
+        const x =
+            (event.clientX / window.innerWidth - 0.5);
 
-        let currentSection = "";
+        const y =
+            (event.clientY / window.innerHeight - 0.5);
 
-        sections.forEach((section) => {
 
-            const sectionTop =
-                section.offsetTop - 160;
+        const activeScene =
+            scenes[current];
 
-            const sectionHeight =
-                section.offsetHeight;
 
-            if (
-                window.scrollY >= sectionTop &&
-                window.scrollY <
-                sectionTop + sectionHeight
-            ) {
+        const floatingElements =
+            activeScene.querySelectorAll(
+                ".floating-object, " +
+                ".tech-object, " +
+                ".react-object, " +
+                ".backend-object, " +
+                ".database-object, " +
+                ".git-object"
+            );
 
-                currentSection =
-                    section.getAttribute("id");
 
-            }
+        floatingElements.forEach((element, index) => {
+
+            const intensity =
+                15 + (index * 5);
+
+            element.style.transform =
+                `translate(${x * intensity}px, ${y * intensity}px)`;
 
         });
 
-        navLinks.forEach((link) => {
 
-            const href =
-                link.getAttribute("href");
+        const background =
+            activeScene.querySelector(".scene-bg");
 
-            link.classList.remove("active");
+        if (background) {
 
-            if (
-                href ===
-                `#${currentSection}`
-            ) {
+            background.style.transform =
+                `scale(1.03) translate(${x * -10}px, ${y * -10}px)`;
 
-                link.classList.add("active");
-
-            }
-
-        });
-
-    }
-
-    window.addEventListener(
-        "scroll",
-        updateActiveNav,
-        { passive: true }
-    );
-
-    updateActiveNav();
-
-
-    /* =================================================
-       TECH CARD CURSOR / RADIAL EFFECT
-       ================================================= */
-
-    techCards.forEach((card) => {
-
-        card.addEventListener(
-            "mousemove",
-            (event) => {
-
-                const rect =
-                    card.getBoundingClientRect();
-
-                const x =
-                    event.clientX - rect.left;
-
-                const y =
-                    event.clientY - rect.top;
-
-                card.style.background =
-                    `
-                    radial-gradient(
-                        circle at ${x}px ${y}px,
-                        rgba(47, 128, 255, 0.16),
-                        rgba(255, 255, 255, 0.035) 45%
-                    )
-                    `;
-
-            }
-        );
-
-        card.addEventListener(
-            "mouseleave",
-            () => {
-
-                card.style.background =
-                    "";
-
-            }
-        );
+        }
 
     });
 
 
-    /* =================================================
-       TERMINAL CURSOR
-       ================================================= */
+    /* ============================================
+       MENU
+       ============================================ */
 
-    const terminalCursor =
-        document.querySelector(".cursor");
+    const menuBtn =
+        document.getElementById("menuBtn");
 
-    if (terminalCursor) {
+    const menuClose =
+        document.getElementById("menuClose");
 
-        setInterval(() => {
+    const menuOverlay =
+        document.getElementById("menuOverlay");
 
-            terminalCursor.style.opacity =
-                terminalCursor.style.opacity === "0"
-                    ? "1"
-                    : "0";
 
-        }, 600);
+    menuBtn.addEventListener("click", () => {
+
+        menuOverlay.classList.add("open");
+
+    });
+
+
+    menuClose.addEventListener("click", () => {
+
+        menuOverlay.classList.remove("open");
+
+    });
+
+
+    /* ============================================
+       MENU LINKS
+       ============================================ */
+
+    const menuLinks =
+        document.querySelectorAll("[data-menu]");
+
+
+        menuLinks.forEach((link) => {
+
+            link.addEventListener("click", (event) => {
+        
+                event.preventDefault();
+        
+                const index = parseInt(link.dataset.menu);
+        
+                // Close menu
+                menuOverlay.classList.remove("open");
+        
+                // Go to selected scene
+                setTimeout(() => {
+                    goToScene(index);
+                }, 300);
+        
+            });
+        
+        });
+
+
+    /* ============================================
+       ESCAPE CLOSE MENU
+       ============================================ */
+
+    document.addEventListener("keydown", (event) => {
+
+        if (event.key === "Escape") {
+
+            menuOverlay.classList.remove("open");
+
+        }
+
+    });
+
+
+    /* ============================================
+       ENQUIRE BUTTON
+       ============================================ */
+
+    const enquireBtn =
+        document.getElementById("enquireBtn");
+
+
+    if (enquireBtn) {
+
+        enquireBtn.addEventListener("click", () => {
+
+            alert(
+                "Thank you for your interest in G-TEC Full Stack Web Development!"
+            );
+
+        });
 
     }
 
 
-    /* =================================================
-       PAGE LOADED
-       ================================================= */
+    /* ============================================
+       PREVENT CONTEXT MENU ON EXPERIENCE
+       ============================================ */
 
-    window.addEventListener(
-        "load",
-        () => {
-
-            document.body.classList.add(
-                "loaded"
-            );
-
+    experience.addEventListener(
+        "contextmenu",
+        (event) => {
+            event.preventDefault();
         }
     );
 
 
-    /* =================================================
-       G-TEC CINEMATIC SCROLL EXPERIENCE
-       ================================================= */
+    /* ============================================
+       IMAGE PRELOAD
+       ============================================ */
 
-    const cinematicSection =
-        document.querySelector(
-            ".cinematic-story"
-        );
+    const images = [
 
-    if (!cinematicSection) {
-        return;
-    }
+        "images/gtec-logo.png",
+        "images/hero.jpg",
+        "images/html-3d.png",
+        "images/javascript-3d.png",
+        "images/react-3d.png",
+        "images/backend-3d.png",
+        "images/database-3d.png",
+        "images/git-3d.png"
 
+    ];
 
-    const cinematicSlides =
-        Array.from(
-            cinematicSection.querySelectorAll(
-                ".cinematic-slide"
-            )
-        );
 
+    images.forEach((src) => {
 
-    const cinematicProgressBar =
-        cinematicSection.querySelector(
-            ".cinematic-progress-line span"
-        );
+        const image = new Image();
 
+        image.src = src;
 
-    const cinematicCurrentNumber =
-        cinematicSection.querySelector(
-            ".cinematic-current"
-        );
+    });
 
 
-    if (!cinematicSlides.length) {
-        return;
-    }
+    /* ============================================
+       INITIAL STATE
+       ============================================ */
 
-
-    let currentSlide = 0;
-
-    let cinematicTicking = false;
-
-
-    /* -----------------------------------------------
-       INITIAL SLIDE
-       ----------------------------------------------- */
-
-    cinematicSlides.forEach(
-        (slide, index) => {
-
-            slide.classList.toggle(
-                "active",
-                index === 0
-            );
-
-        }
-    );
-
-
-    /* -----------------------------------------------
-       CINEMATIC UPDATE
-       ----------------------------------------------- */
-
-    function updateCinematic() {
-
-        const rect =
-            cinematicSection.getBoundingClientRect();
-
-
-        const sectionHeight =
-            cinematicSection.offsetHeight;
-
-
-        const viewportHeight =
-            window.innerHeight;
-
-
-        const scrollable =
-            sectionHeight -
-            viewportHeight;
-
-
-        if (scrollable <= 0) {
-            return;
-        }
-
-
-        /* -------------------------------------------
-           Overall progress
-           ------------------------------------------- */
-
-        let progress =
-            -rect.top / scrollable;
-
-
-        progress =
-            Math.max(
-                0,
-                Math.min(
-                    1,
-                    progress
-                )
-            );
-
-
-        /* -------------------------------------------
-           Determine active slide
-           ------------------------------------------- */
-
-        const slideCount =
-            cinematicSlides.length;
-
-
-        let slideIndex =
-            Math.floor(
-                progress * slideCount
-            );
-
-
-        if (
-            slideIndex >= slideCount
-        ) {
-
-            slideIndex =
-                slideCount - 1;
-
-        }
-
-
-        /* -------------------------------------------
-           Activate slide
-           ------------------------------------------- */
-
-        if (
-            slideIndex !==
-            currentSlide
-        ) {
-
-            cinematicSlides.forEach(
-                (slide, index) => {
-
-                    slide.classList.toggle(
-                        "active",
-                        index === slideIndex
-                    );
-
-                }
-            );
-
-            currentSlide =
-                slideIndex;
-
-        }
-
-
-        /* -------------------------------------------
-           Local slide progress
-           ------------------------------------------- */
-
-        const slideStart =
-            slideIndex /
-            slideCount;
-
-
-        const slideEnd =
-            (slideIndex + 1) /
-            slideCount;
-
-
-        let localProgress =
-            (
-                progress -
-                slideStart
-            ) /
-            (
-                slideEnd -
-                slideStart
-            );
-
-
-        localProgress =
-            Math.max(
-                0,
-                Math.min(
-                    1,
-                    localProgress
-                )
-            );
-
-
-        /* -------------------------------------------
-           IMAGE ZOOM + PARALLAX
-           ------------------------------------------- */
-
-        cinematicSlides.forEach(
-            (slide, index) => {
-
-                const image =
-                    slide.querySelector("img");
-
-                if (!image) {
-                    return;
-                }
-
-
-                if (
-                    index === slideIndex
-                ) {
-
-                    /*
-                     * Very small zoom.
-                     * This gives the image
-                     * a cinematic camera feel.
-                     */
-
-                    const scale =
-                        1 +
-                        localProgress * 0.055;
-
-
-                    const x =
-                        localProgress * -16;
-
-
-                    const y =
-                        localProgress * -6;
-
-
-                    image.style.transform =
-                        `
-                        translate3d(
-                            ${x}px,
-                            ${y}px,
-                            0
-                        )
-                        scale(${scale})
-                        `;
-
-                } else {
-
-                    image.style.transform =
-                        `
-                        translate3d(
-                            0,
-                            0,
-                            0
-                        )
-                        scale(1)
-                        `;
-
-                }
-
-            }
-        );
-
-
-        /* -------------------------------------------
-           PROGRESS BAR
-           ------------------------------------------- */
-
-        if (cinematicProgressBar) {
-
-            cinematicProgressBar.style.width =
-                `${progress * 100}%`;
-
-        }
-
-
-        /* -------------------------------------------
-           SLIDE NUMBER
-           ------------------------------------------- */
-
-        if (cinematicCurrentNumber) {
-
-            cinematicCurrentNumber.textContent =
-                String(
-                    slideIndex + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-        }
-
-    }
-
-
-    /* =================================================
-       REQUEST ANIMATION FRAME
-       ================================================= */
-
-    function requestCinematicUpdate() {
-
-        if (cinematicTicking) {
-            return;
-        }
-
-        cinematicTicking = true;
-
-
-        requestAnimationFrame(
-            () => {
-
-                updateCinematic();
-
-                cinematicTicking =
-                    false;
-
-            }
-        );
-
-    }
-
-
-    /* =================================================
-       CINEMATIC SCROLL EVENT
-       ================================================= */
-
-    window.addEventListener(
-        "scroll",
-        requestCinematicUpdate,
-        {
-            passive: true
-        }
-    );
-
-
-    /* =================================================
-       CINEMATIC RESIZE EVENT
-       ================================================= */
-
-    window.addEventListener(
-        "resize",
-        requestCinematicUpdate
-    );
-
-
-    /* =================================================
-       INITIAL CINEMATIC UPDATE
-       ================================================= */
-
-    updateCinematic();
-
+    currentScene.textContent = "01";
 
 });
